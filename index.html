@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meer AI</title>
+    
+    <script type="text/javascript">
+    (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var h="mixpanel";"mixpanel"!==d&&(h+="."+d);b||(h+=" (stub)");return h};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable time_event track track_pageview track_links track_forms track_with_groups track_pageview_with_groups set_group get_group properties.set properties.set_once properties.unset properties.increment properties.append properties.union properties.remove properties.clear_id properties.login logout alias identify clear super_properties register register_once get_property get_distinct_id trim_version".split(" ");
+    for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="undefined"!==typeof MIXPANEL_CUSTOM_LIB_URL?MIXPANEL_CUSTOM_LIB_URL:"file:"===f.location.protocol&&"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js".match(/^\/\//)?"https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js":"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);
+    
+    // PASTE YOUR KEY INSIDE THESE QUOTES BELOW:
+    mixpanel.init('905b410404f21608b58ca28b1f20329b', {track_pageview: true});
+    </script>
+
     <style>
         :root {
             --bg-gradient: linear-gradient(45deg, #1a0b2e, #0b1a30, #0a2e23, #2e270b, #2e0b1a);
@@ -354,12 +363,11 @@
         const errorMsg = document.getElementById('error-msg');
 
         loginBtn.addEventListener('click', function() {
-            // Edit your custom username and password right here!
             if (usernameInput.value === 'admin' && passwordInput.value === 'meer123') {
                 loginScreen.style.display = 'none';
                 appScreen.style.display = 'block';
                 errorMsg.style.display = 'none';
-                initAI(); // Initialize the AI engine only after successful unlock
+                initAI(); 
             } else {
                 errorMsg.style.display = 'block';
                 passwordInput.value = '';
@@ -384,7 +392,7 @@
         const resetBtn = document.getElementById('resetBtn');
 
         async function initAI() {
-            if (classifierPipeline) return; // Prevent double-loading
+            if (classifierPipeline) return; 
             try {
                 classifierPipeline = await pipeline('image-classification', 'Xenova/vit-base-patch16-224');
                 status.innerHTML = "🟢 SYSTEM READY";
@@ -409,6 +417,14 @@
                 try {
                     const output = await classifierPipeline(preview.src);
                     status.innerHTML = "✨ COMPUTE COMPLETED";
+                    
+                    // --- MIXPANEL REPORT METRIC ---
+                    if (output && output.length > 0) {
+                        mixpanel.track("Image Scanned", {
+                            "Top Detected Object": output[0].label.split(',')[0],
+                            "Confidence Score": (output[0].score * 100).toFixed(1) + "%"
+                        });
+                    }
                     
                     output.forEach(prediction => {
                         const scorePercentage = (prediction.score * 100).toFixed(1);
