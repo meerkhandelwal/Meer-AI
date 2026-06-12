@@ -5,16 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meer AI</title>
     
+    <script src="https://cdn.jsdelivr.net/npm/mixpanel-browser@2.49.0/dist/mixpanel.umd.js"></script>
     <script type="text/javascript">
-    (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var h="mixpanel";"mixpanel"!==d&&(h+="."+d);b||(h+=" (stub)");return h};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable time_event track track_pageview track_links track_forms track_with_groups track_pageview_with_groups set_group get_group properties.set properties.set_once properties.unset properties.increment properties.append properties.union properties.remove properties.clear_id properties.login logout alias identify clear super_properties register register_once get_property get_distinct_id trim_version".split(" ");
-    for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="undefined"!==typeof MIXPANEL_CUSTOM_LIB_URL?MIXPANEL_CUSTOM_LIB_URL:"file:"===f.location.protocol&&"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js".match(/^\/\//)?"https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js":"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);
-    
-    // PASTE YOUR KEY INSIDE THESE QUOTES BELOW:
-    mixpanel.init('905b410404f21608b58ca28b1f20329b', {track_pageview: true});
+        window.mixpanel.init('905b410404f21608b58ca28b1f20329b', {
+            track_pageview: true,
+            cross_subdomain_cookie: false,
+            persistence: 'localStorage',
+            api_host: "https://api-js.mixpanel.com"
+        });
     </script>
 
     <style>
+        /* LIGHT THEME (DEFAULT) - WARM GRADIENTS */
         :root {
+            --bg-gradient: linear-gradient(45deg, #f5efe6, #ebd3b8, #f5cbb7, #e8a7a1, #dca1be);
+            --panel-bg: rgba(255, 255, 255, 0.4);
+            --panel-border: rgba(0, 0, 0, 0.06);
+            --accent-glow: #bd00ff;
+            --accent-cyan: #ff7b00;
+            --text-main: #2b2638;
+            --text-muted: #6b6378;
+            --input-bg: rgba(255, 255, 255, 0.7);
+            --input-text: #000;
+            --card-hover: rgba(0, 0, 0, 0.04);
+            --sidebar-bg: rgba(255, 255, 255, 0.25);
+        }
+
+        /* DARK THEME - COOL CYBERPUNK HUD */
+        [data-theme="dark"] {
             --bg-gradient: linear-gradient(45deg, #1a0b2e, #0b1a30, #0a2e23, #2e270b, #2e0b1a);
             --panel-bg: rgba(255, 255, 255, 0.03);
             --panel-border: rgba(255, 255, 255, 0.08);
@@ -22,6 +40,10 @@
             --accent-cyan: #00f0ff;
             --text-main: #f3f1f9;
             --text-muted: #8a84a3;
+            --input-bg: rgba(0, 0, 0, 0.3);
+            --input-text: #fff;
+            --card-hover: rgba(255, 255, 255, 0.06);
+            --sidebar-bg: rgba(0, 0, 0, 0.2);
         }
 
         body { 
@@ -37,6 +59,7 @@
             justify-content: center;
             padding: 20px;
             box-sizing: border-box;
+            transition: color 0.5s ease, background 0.5s ease;
         }
 
         @keyframes rainbowBackground {
@@ -45,17 +68,109 @@
             100% { background-position: 0% 50%; }
         }
 
+        /* App Main Shell Container */
+        .app-container {
+            display: flex;
+            gap: 24px;
+            width: 100%;
+            max-width: 900px;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        /* History Sidebar Styling */
+        #history-sidebar {
+            display: none;
+            width: 260px;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--panel-border);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0 0 16px 0;
+            letter-spacing: 0.5px;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 10px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+            max-height: 500px;
+            padding-right: 4px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            padding: 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            transform: translateX(3px);
+            background: var(--card-hover);
+            border-color: var(--accent-cyan);
+        }
+
+        .history-thumb {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid var(--panel-border);
+        }
+
+        .history-info {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .history-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: capitalize;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-score {
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+            font-weight: 700;
+        }
+
         /* Login Screen Panel */
         #login-screen {
             width: 100%;
             max-width: 400px;
             background: var(--panel-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             padding: 40px;
             border-radius: 24px;
             border: 1px solid var(--panel-border);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
             text-align: center;
         }
 
@@ -76,10 +191,10 @@
         .input-group input {
             width: 100%;
             padding: 12px;
-            background: rgba(0, 0, 0, 0.3);
+            background: var(--input-bg);
             border: 1px solid var(--panel-border);
             border-radius: 8px;
-            color: #fff;
+            color: var(--input-text);
             font-size: 1rem;
             box-sizing: border-box;
             transition: all 0.3s ease;
@@ -115,25 +230,24 @@
             display: none;
         }
 
-        /* Main Application Panel (Hidden by default) */
+        /* Main Application Panel */
         #app-screen {
             display: none;
-            width: 100%;
+            flex: 1;
             max-width: 540px;
             background: var(--panel-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             padding: 40px;
             border-radius: 24px;
             border: 1px solid var(--panel-border);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5),
-                        0 0 40px rgba(0, 240, 255, 0.05);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
         }
 
         .header-area {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
             margin-bottom: 10px;
         }
 
@@ -142,21 +256,30 @@
             font-weight: 800;
             letter-spacing: -0.5px;
             margin: 0;
-            background: linear-gradient(90deg, #fff 0%, #a370ff 100%);
+            background: linear-gradient(90deg, var(--text-main) 0%, var(--accent-glow) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        #logoutBtn {
-            background: rgba(255, 255, 255, 0.05);
+        .controls-wrapper {
+            display: flex;
+            gap: 8px;
+        }
+
+        #themeBtn, #logoutBtn {
+            background: rgba(255, 255, 255, 0.2);
             border: 1px solid var(--panel-border);
-            color: var(--text-muted);
+            color: var(--text-main);
             padding: 6px 14px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 0.85rem;
             font-weight: 600;
             transition: all 0.2s ease;
+        }
+
+        #themeBtn:hover, #logoutBtn:hover {
+            transform: translateY(-1px);
         }
 
         #logoutBtn:hover {
@@ -172,31 +295,36 @@
             text-align: center;
         }
 
+        /* Interactive Upload Zone */
         .upload-box {
             border: 2px dashed var(--panel-border);
-            padding: 30px 20px;
+            padding: 40px 20px;
             border-radius: 16px;
             cursor: pointer;
-            background: rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.01);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             text-align: center;
         }
 
-        .upload-box:hover {
+        /* Triggered automatically by JS dragover event */
+        .upload-box.drag-active {
             border-color: var(--accent-cyan);
-            background: rgba(0, 240, 255, 0.02);
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+            background: var(--card-hover);
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
         }
 
         .upload-box p {
             margin: 0;
             color: var(--text-muted);
             font-size: 0.95rem;
+            pointer-events: none;
         }
 
         .upload-box strong {
             color: var(--text-main);
+            pointer-events: none;
         }
 
         #imageUpload {
@@ -215,8 +343,8 @@
             max-height: 280px;
             margin: 25px auto 0 auto; 
             border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            border: 1px solid var(--panel-border);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
         }
 
         #status { 
@@ -240,8 +368,8 @@
         }
 
         .result-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.01);
+            border: 1px solid var(--panel-border);
             padding: 16px;
             border-radius: 12px;
             text-align: left;
@@ -250,7 +378,7 @@
 
         .result-card:hover {
             transform: translateX(4px);
-            background: rgba(255, 255, 255, 0.04);
+            background: var(--card-hover);
         }
 
         .result-info {
@@ -263,7 +391,7 @@
         .result-label {
             font-weight: 600;
             font-size: 1rem;
-            color: #fff;
+            color: var(--text-main);
             text-transform: capitalize;
         }
 
@@ -274,7 +402,7 @@
         }
 
         .progress-bar-bg {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.04);
             height: 6px;
             border-radius: 3px;
             width: 100%;
@@ -301,61 +429,114 @@
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(112, 0, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(112, 0, 255, 0.2);
         }
 
         #resetBtn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(112, 0, 255, 0.5);
+            box-shadow: 0 6px 20px rgba(112, 0, 255, 0.4);
         }
     </style>
 </head>
 <body>
 
-    <div id="login-screen">
-        <h2 style="margin: 0 0 10px 0; font-weight: 800;">System Authentication</h2>
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 30px;">Enter credentials to unlock Meer AI nodes.</p>
+    <div class="app-container">
         
-        <div class="input-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" placeholder="Enter username">
+        <div id="history-sidebar">
+            <h3 class="sidebar-title">📁 Session Nodes</h3>
+            <div class="history-list" id="historyList"></div>
         </div>
-        
-        <div class="input-group">
-            <label for="password">Security Password</label>
-            <input type="password" id="password" placeholder="Enter password">
-        </div>
-        
-        <button id="loginBtn">Decrypt Workspace</button>
-        <div id="error-msg">Invalid Identity Credentials</div>
-    </div>
 
-    <div id="app-screen">
-        <div class="header-area">
-            <h1>Meer AI</h1>
-            <button id="logoutBtn">🔒 Lock System</button>
+        <div id="login-screen">
+            <h2 style="margin: 0 0 10px 0; font-weight: 800;">System Authentication</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 30px;">Enter credentials to unlock Meer AI nodes.</p>
+            
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter username">
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Security Password</label>
+                <input type="password" id="password" placeholder="Enter password">
+            </div>
+            
+            <button id="loginBtn">Decrypt Workspace</button>
+            <div id="error-msg">Invalid Identity Credentials</div>
         </div>
-        <p class="subtitle">Upload an image to compute pixel data against a 1,000-class network node.</p>
-        
-        <div class="upload-box" id="uploadBox">
-            <p>📥 Drop file here or <strong>browse files</strong></p>
-            <input type="file" id="imageUpload" accept="image/*">
+
+        <div id="app-screen">
+            <div class="header-area">
+                <h1>Meer AI</h1>
+                <div class="controls-wrapper">
+                    <button id="themeBtn" title="Toggle System Layout Theme">☀️ Light</button>
+                    <button id="logoutBtn">🔒 Lock System</button>
+                </div>
+            </div>
+            <p class="subtitle">Upload an image to compute pixel data against a 1,000-class network node.</p>
+            
+            <div class="upload-box" id="uploadBox">
+                <p>📥 Drop file here or <strong>browse files</strong></p>
+                <input type="file" id="imageUpload" accept="image/*">
+            </div>
+            
+            <img id="preview" alt="Network data preview">
+            
+            <div id="status">⚡ Core Initialization Sequence Active...</div>
+            
+            <div id="results-container"></div>
+            <button id="resetBtn">🔄 Scan New Image</button>
         </div>
-        
-        <img id="preview" alt="Network data preview">
-        
-        <div id="status">⚡ Core Initialization Sequence Active...</div>
-        
-        <div id="results-container"></div>
-        <button id="resetBtn">🔄 Scan New Image</button>
+
     </div>
 
     <script type="module">
         import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0/dist/transformers.js';
 
-        // --- LOGIN INTERACTION LOGIC ---
+        // --- THEME PANEL SYSTEM MANAGEMENT ---
+        const themeBtn = document.getElementById('themeBtn');
+        
+        if (localStorage.getItem('meer-ui-theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeBtn.innerHTML = "🌙 Dark";
+        }
+
+        themeBtn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+                themeBtn.innerHTML = "☀️ Light";
+                localStorage.setItem('meer-ui-theme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeBtn.innerHTML = "🌙 Dark";
+                localStorage.setItem('meer-ui-theme', 'dark');
+            }
+        });
+
+        // --- INTERACTIVE DRAG-AND-DROP UI EFFECTS ---
+        const uploadBox = document.getElementById('uploadBox');
+        const imageUpload = document.getElementById('imageUpload');
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadBox.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                uploadBox.classList.add('drag-active');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadBox.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                uploadBox.classList.remove('drag-active');
+            }, false);
+        });
+
+
+        // --- LOGIN & SIDEBAR INTERACTION LOGIC ---
         const loginScreen = document.getElementById('login-screen');
         const appScreen = document.getElementById('app-screen');
+        const sidebar = document.getElementById('history-sidebar');
         const usernameInput = document.getElementById('username');
         const passwordInput = document.getElementById('password');
         const loginBtn = document.getElementById('loginBtn');
@@ -366,6 +547,7 @@
             if (usernameInput.value === 'admin' && passwordInput.value === 'meer123') {
                 loginScreen.style.display = 'none';
                 appScreen.style.display = 'block';
+                sidebar.style.display = 'flex'; // Show sidebar on unlock
                 errorMsg.style.display = 'none';
                 initAI(); 
             } else {
@@ -376,25 +558,29 @@
 
         logoutBtn.addEventListener('click', function() {
             appScreen.style.display = 'none';
+            sidebar.style.display = 'none'; // Hide sidebar on lock
             loginScreen.style.display = 'block';
             usernameInput.value = '';
             passwordInput.value = '';
         });
 
 
-        // --- CORE VISION AI ENGINE ---
+        // --- CORE VISION AI ENGINE & HISTORY SYSTEM ---
         let classifierPipeline;
-        const imageUpload = document.getElementById('imageUpload');
-        const uploadBox = document.getElementById('uploadBox');
         const preview = document.getElementById('preview');
         const status = document.getElementById('status');
         const resultsContainer = document.getElementById('results-container');
         const resetBtn = document.getElementById('resetBtn');
+        const historyList = document.getElementById('historyList');
+
+        let sessionScans = []; // Memory array storing past images + data arrays
 
         async function initAI() {
             if (classifierPipeline) return; 
             try {
-                classifierPipeline = await pipeline('image-classification', 'Xenova/vit-base-patch16-224');
+                classifierPipeline = await pipeline('image-classification', 'Xenova/vit-base-patch16-224', {
+                    dtype: 'fp32'
+                });
                 status.innerHTML = "🟢 SYSTEM READY";
             } catch (error) {
                 status.innerHTML = "🔴 INITIALIZATION FAILURE";
@@ -406,52 +592,105 @@
             const file = e.target.files[0];
             if (!file) return;
 
+            const objectUrl = URL.createObjectURL(file);
+            processImageScan(objectUrl);
+        });
+
+        async function processImageScan(imageSrc) {
             uploadBox.style.display = "none";
-            preview.src = URL.createObjectURL(file);
+            preview.src = imageSrc;
             preview.style.display = "block";
             status.innerHTML = "🧬 ANALYZING PIXEL CLUSTERS...";
             resultsContainer.innerHTML = "";
             resetBtn.style.display = "none";
 
-            preview.onload = async function() {
+            // Small delay to let image preview render smoothly
+            setTimeout(async () => {
                 try {
-                    const output = await classifierPipeline(preview.src);
+                    const output = await classifierPipeline(imageSrc);
                     status.innerHTML = "✨ COMPUTE COMPLETED";
                     
                     // --- MIXPANEL REPORT METRIC ---
                     if (output && output.length > 0) {
-                        mixpanel.track("Image Scanned", {
+                        window.mixpanel.track("Image Scanned", {
                             "Top Detected Object": output[0].label.split(',')[0],
                             "Confidence Score": (output[0].score * 100).toFixed(1) + "%"
                         });
+
+                        // Add item to memory array only if it's a completely fresh scan
+                        const duplicateCheck = sessionScans.some(item => item.src === imageSrc);
+                        if (!duplicateCheck) {
+                            sessionScans.unshift({
+                                src: imageSrc,
+                                topLabel: output[0].label.split(',')[0],
+                                topScore: (output[0].score * 100).toFixed(1) + "%",
+                                fullOutput: output
+                            });
+                            renderSidebarHistory();
+                        }
                     }
                     
-                    output.forEach(prediction => {
-                        const scorePercentage = (prediction.score * 100).toFixed(1);
-                        const cleanLabel = prediction.label.split(',')[0];
-
-                        const cardHtml = `
-                            <div class="result-card">
-                                <div class="result-info">
-                                    <span class="result-label">${cleanLabel}</span>
-                                    <span class="result-percentage">${scorePercentage}%</span>
-                                </div>
-                                <div class="progress-bar-bg">
-                                    <div class="progress-bar-fill" style="width: ${scorePercentage}%"></div>
-                                </div>
-                            </div>
-                        `;
-                        resultsContainer.innerHTML += cardHtml;
-                    });
-
+                    renderResultCards(output);
                     resetBtn.style.display = "block";
                 } catch (err) {
                     status.innerHTML = "❌ PROCESSING EXCEPTION";
                     console.error(err);
                     resetBtn.style.display = "block";
                 }
-            };
-        });
+            }, 100);
+        }
+
+        function renderResultCards(outputArray) {
+            resultsContainer.innerHTML = "";
+            outputArray.forEach(prediction => {
+                const scorePercentage = (prediction.score * 100).toFixed(1);
+                const cleanLabel = prediction.label.split(',')[0];
+
+                const cardHtml = `
+                    <div class="result-card">
+                        <div class="result-info">
+                            <span class="result-label">${cleanLabel}</span>
+                            <span class="result-percentage">${scorePercentage}%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" style="width: ${scorePercentage}%"></div>
+                        </div>
+                    </div>
+                `;
+                resultsContainer.innerHTML += cardHtml;
+            });
+        }
+
+        function renderSidebarHistory() {
+            historyList.innerHTML = "";
+            sessionScans.forEach((scan, index) => {
+                const itemHtml = `
+                    <div class="history-item" data-index="${index}">
+                        <img src="${scan.src}" class="history-thumb">
+                        <div class="history-info">
+                            <span class="history-label">${scan.topLabel}</span>
+                            <span class="history-score">${scan.topScore}</span>
+                        </div>
+                    </div>
+                `;
+                historyList.innerHTML += itemHtml;
+            });
+
+            // Wire up clicking history items to re-display past computations instantly
+            document.querySelectorAll('.history-item').forEach(element => {
+                element.addEventListener('click', (e) => {
+                    const targetIndex = e.currentTarget.getAttribute('data-index');
+                    const selectedScan = sessionScans[targetIndex];
+                    
+                    uploadBox.style.display = "none";
+                    preview.src = selectedScan.src;
+                    preview.style.display = "block";
+                    status.innerHTML = "✨ RECALLED NODE DATA";
+                    renderResultCards(selectedScan.fullOutput);
+                    resetBtn.style.display = "block";
+                });
+            });
+        }
 
         resetBtn.addEventListener('click', function() {
             imageUpload.value = "";
