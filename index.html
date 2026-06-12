@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meer AI</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(45deg, #1a0b2e, #0b1a30, #0a2e23, #2e270b, #2e0b1a);
+            --panel-bg: rgba(255, 255, 255, 0.03);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --accent-glow: #7000ff;
+            --accent-cyan: #00f0ff;
+            --text-main: #f3f1f9;
+            --text-muted: #8a84a3;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background: var(--bg-gradient);
+            background-size: 400% 400%;
+            animation: rainbowBackground 15s ease infinite;
+            color: var(--text-main);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        @keyframes rainbowBackground {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Login Screen Panel */
+        #login-screen {
+            width: 100%;
+            max-width: 400px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 40px;
+            border-radius: 24px;
+            border: 1px solid var(--panel-border);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: var(--accent-cyan);
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
+        }
+
+        #loginBtn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--accent-glow) 0%, #4a00b8 100%);
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #loginBtn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(112, 0, 255, 0.4);
+        }
+
+        #error-msg {
+            color: #ff4a4a;
+            font-size: 0.9rem;
+            margin-top: 15px;
+            display: none;
+        }
+
+        /* Main Application Panel (Hidden by default) */
+        #app-screen {
+            display: none;
+            width: 100%;
+            max-width: 540px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 40px;
+            border-radius: 24px;
+            border: 1px solid var(--panel-border);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5),
+                        0 0 40px rgba(0, 240, 255, 0.05);
+        }
+
+        .header-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin: 0;
+            background: linear-gradient(90deg, #fff 0%, #a370ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #logoutBtn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--panel-border);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        #logoutBtn:hover {
+            background: rgba(255, 74, 74, 0.1);
+            color: #ff4a4a;
+            border-color: rgba(255, 74, 74, 0.2);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .upload-box {
+            border: 2px dashed var(--panel-border);
+            padding: 30px 20px;
+            border-radius: 16px;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            text-align: center;
+        }
+
+        .upload-box:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.02);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+        }
+
+        .upload-box p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .upload-box strong {
+            color: var(--text-main);
+        }
+
+        #imageUpload {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        #preview { 
+            display: none;
+            max-width: 100%; 
+            max-height: 280px;
+            margin: 25px auto 0 auto; 
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        #status { 
+            font-size: 0.9rem;
+            font-weight: 600; 
+            color: var(--accent-cyan); 
+            margin: 25px 0 15px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        #results-container { 
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: left;
+            transition: transform 0.2s ease;
+        }
+
+        .result-card:hover {
+            transform: translateX(4px);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .result-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .result-label {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #fff;
+            text-transform: capitalize;
+        }
+
+        .result-percentage {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--accent-cyan);
+        }
+
+        .progress-bar-bg {
+            background: rgba(255, 255, 255, 0.05);
+            height: 6px;
+            border-radius: 3px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background: linear-gradient(90deg, var(--accent-glow) 0%, var(--accent-cyan) 100%);
+            height: 100%;
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.1, 0.8, 0.3, 1);
+        }
+
+        #resetBtn {
+            display: none;
+            margin: 30px auto 0 auto;
+            padding: 12px 28px;
+            background: linear-gradient(135deg, var(--accent-glow) 0%, #4a00b8 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(112, 0, 255, 0.3);
+        }
+
+        #resetBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(112, 0, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <h2 style="margin: 0 0 10px 0; font-weight: 800;">System Authentication</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 30px;">Enter credentials to unlock Meer AI nodes.</p>
+        
+        <div class="input-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Enter username">
+        </div>
+        
+        <div class="input-group">
+            <label for="password">Security Password</label>
+            <input type="password" id="password" placeholder="Enter password">
+        </div>
+        
+        <button id="loginBtn">Decrypt Workspace</button>
+        <div id="error-msg">Invalid Identity Credentials</div>
+    </div>
+
+    <div id="app-screen">
+        <div class="header-area">
+            <h1>Meer AI</h1>
+            <button id="logoutBtn">🔒 Lock System</button>
+        </div>
+        <p class="subtitle">Upload an image to compute pixel data against a 1,000-class network node.</p>
+        
+        <div class="upload-box" id="uploadBox">
+            <p>📥 Drop file here or <strong>browse files</strong></p>
+            <input type="file" id="imageUpload" accept="image/*">
+        </div>
+        
+        <img id="preview" alt="Network data preview">
+        
+        <div id="status">⚡ Core Initialization Sequence Active...</div>
+        
+        <div id="results-container"></div>
+        <button id="resetBtn">🔄 Scan New Image</button>
+    </div>
+
+    <script type="module">
+        import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0/dist/transformers.js';
+
+        // --- LOGIN INTERACTION LOGIC ---
+        const loginScreen = document.getElementById('login-screen');
+        const appScreen = document.getElementById('app-screen');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const errorMsg = document.getElementById('error-msg');
+
+        loginBtn.addEventListener('click', function() {
+            // Edit your custom username and password right here!
+            if (usernameInput.value === 'admin' && passwordInput.value === 'meer123') {
+                loginScreen.style.display = 'none';
+                appScreen.style.display = 'block';
+                errorMsg.style.display = 'none';
+                initAI(); // Initialize the AI engine only after successful unlock
+            } else {
+                errorMsg.style.display = 'block';
+                passwordInput.value = '';
+            }
+        });
+
+        logoutBtn.addEventListener('click', function() {
+            appScreen.style.display = 'none';
+            loginScreen.style.display = 'block';
+            usernameInput.value = '';
+            passwordInput.value = '';
+        });
+
+
+        // --- CORE VISION AI ENGINE ---
+        let classifierPipeline;
+        const imageUpload = document.getElementById('imageUpload');
+        const uploadBox = document.getElementById('uploadBox');
+        const preview = document.getElementById('preview');
+        const status = document.getElementById('status');
+        const resultsContainer = document.getElementById('results-container');
+        const resetBtn = document.getElementById('resetBtn');
+
+        async function initAI() {
+            if (classifierPipeline) return; // Prevent double-loading
+            try {
+                classifierPipeline = await pipeline('image-classification', 'Xenova/vit-base-patch16-224');
+                status.innerHTML = "🟢 SYSTEM READY";
+            } catch (error) {
+                status.innerHTML = "🔴 INITIALIZATION FAILURE";
+                console.error(error);
+            }
+        }
+
+        imageUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            uploadBox.style.display = "none";
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = "block";
+            status.innerHTML = "🧬 ANALYZING PIXEL CLUSTERS...";
+            resultsContainer.innerHTML = "";
+            resetBtn.style.display = "none";
+
+            preview.onload = async function() {
+                try {
+                    const output = await classifierPipeline(preview.src);
+                    status.innerHTML = "✨ COMPUTE COMPLETED";
+                    
+                    output.forEach(prediction => {
+                        const scorePercentage = (prediction.score * 100).toFixed(1);
+                        const cleanLabel = prediction.label.split(',')[0];
+
+                        const cardHtml = `
+                            <div class="result-card">
+                                <div class="result-info">
+                                    <span class="result-label">${cleanLabel}</span>
+                                    <span class="result-percentage">${scorePercentage}%</span>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" style="width: ${scorePercentage}%"></div>
+                                </div>
+                            </div>
+                        `;
+                        resultsContainer.innerHTML += cardHtml;
+                    });
+
+                    resetBtn.style.display = "block";
+                } catch (err) {
+                    status.innerHTML = "❌ PROCESSING EXCEPTION";
+                    console.error(err);
+                    resetBtn.style.display = "block";
+                }
+            };
+        });
+
+        resetBtn.addEventListener('click', function() {
+            imageUpload.value = "";
+            preview.src = "";
+            preview.style.display = "none";
+            resultsContainer.innerHTML = "";
+            resetBtn.style.display = "none";
+            status.innerHTML = "🟢 SYSTEM READY";
+            uploadBox.style.display = "block";
+        });
+    </script>
+</body>
+</html>
